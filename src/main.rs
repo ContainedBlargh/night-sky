@@ -116,11 +116,19 @@ fn swirl() -> Vec<Drawing> {
     let step = tn / (steps as f32);
     let mut t = 0.0;
     let mut stars: Vec<Drawing> = vec![];
+    let clockwise = rand::random::<bool>();
     while t < tn {
-        let (x, y) = (
-            ((v * t) * (w * t).cos()) + xo,
-            ((v * t) * (w * t).sin()) + yo,
-        );
+        let (x, y) = if clockwise {
+            (
+                ((v * t) * (w * t).cos()) + xo,
+                ((v * t) * (w * t).sin()) + yo,
+            )
+        } else {
+            (
+                ((v * t) * (w * t).sin()) + xo,
+                ((v * t) * (w * t).cos()) + yo,
+            )
+        };
         //TODO Add rotation and shear here.
         stars.extend(star(Some((x, y))).into_iter());
         t += step;
@@ -150,6 +158,9 @@ fn main() {
             .with_position(Point { x: 0.0, y: 0.0 })
             .with_style(Style::filled(RGB { r: 0, g: 0, b: 0 })),
     );
+
+    //TODO: Add nebulas and the like in the background
+
     let n = 110_000;
     let bar = ProgressBar::new(n).with_message(format!("Drawing {} stars...", n));
     for _ in 0..n {
@@ -172,6 +183,7 @@ fn main() {
     )
     .unwrap();
     let image = svg.rasterize(1.0).unwrap();
+    //TODO: Add some postprocessing here, e.g. add noise to non-black colors
     spinner.set_message("Saving buffer...");
     spinner.enable_steady_tick(100);
     save_buffer(
